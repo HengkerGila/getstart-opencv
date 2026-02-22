@@ -1,4 +1,5 @@
 DisplayImage
+MatMaskOperations
 build/
 Makefile
 CMakeFiles/
