@@ -14,11 +14,13 @@ string result_name = "result.jpg";
 
 void printUsage(char** argv);
 int parseCmdArgs(int argc, char** argv);
+void loadImages(const vector<string>& img_names, vector<Mat>& imgs);
 
 int main(int argc, char* argv[])
 {
     int retval = parseCmdArgs(argc, argv);
     if (retval) return EXIT_FAILURE;
+    // loadImages(vector<string>(argv + 1, argv + argc), imgs);
 
     Mat pano;
     Ptr<Stitcher> stitcher = Stitcher::create(mode);
@@ -30,8 +32,16 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    imwrite(result_name, pano);
+    for(size_t i = 0; i < imgs.size(); ++i)
+    {
+        string window_name = "Image " + to_string(i);
+        namedWindow(window_name, WINDOW_AUTOSIZE);
+        imshow(window_name, imgs[i]);
+    }
+
+    imshow(result_name, pano);
     cout << "Stitching completed successfully. Result saved to " << result_name << endl;
+    waitKey(0);
     return EXIT_SUCCESS;
 }
 
@@ -112,4 +122,18 @@ int parseCmdArgs(int argc, char** argv)
         }
     }
     return EXIT_SUCCESS;
+}
+
+void loadImages(const vector<string>& img_names, vector<Mat>& imgs)
+{
+    for (const auto& name : img_names)
+    {
+        Mat img = imread(samples::findFile(name));
+        if (img.empty())
+        {
+            cout << "Can't read image '" << name << "'\n";
+            continue;
+        }
+        imgs.push_back(img);
+    }
 }
